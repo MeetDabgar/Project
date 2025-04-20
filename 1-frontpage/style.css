@@ -17,7 +17,6 @@
     transform-style: preserve-3d;
     transform: perspective(1000px);
     animation: autoRun 20s linear infinite;
-    z-index: ;
 }
 @keyframes autoRun{
     from{
@@ -134,4 +133,77 @@
 }
 #popup-text {
   transition: opacity 0.3s ease;
+}
+
+
+
+
+body {
+  background-color: #ebcf8c;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0 100px,
+      #25283b22 100px 101px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 100px,
+      #262c4e39 100px 101px
+    );
+}
+
+body::before {
+  position: absolute;
+  width: min(1400px, 90vw);
+  top: 10%;
+  left: 50%;
+  height: 90%;
+  transform: translateX(-50%);
+  content: "";
+  background-image: url(file:///C:/Users/ADI/Downloads/watercolor-frame-png-cloudy-night-sky.jpg);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: top center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+
+
+html, body {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgb(28, 21, 21);
+  font-family: 'Orbitron', sans-serif;
+  margin-top: 4rem;
+  z-index: 1;
+  position: relative;
+}
+
+.start-dating-btn {
+  margin-top: 1rem;
+  background-color: #ff5f57;
+  color: white;
+  padding: 0.8rem 2rem;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.start-dating-btn:hover {
+  background-color: #ff3b30;
 }
