@@ -38,3 +38,6 @@ def user_logout(request):
     logout(request)
     messages.info(request, "You have successfully logged out.") 
     return redirect('home')
+
+def home(request):
+    return render(request, '1-frontpage/index.html')
