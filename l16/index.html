@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <link rel="icon" href="icon.png" >
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RELATOR</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #ebcf8c;
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          transparent 0 100px,
+          #25283b22 100px 101px
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 100px,
+          #262c4e39 100px 101px
+        );
+    }
+
+    body::before {
+      position: absolute;
+      width: min(1400px, 90vw);
+      top: 10%;
+      left: 50%;
+      height: 90%;
+      transform: translateX(-50%);
+      content: "";
+    background-image: url('images/watercolor-frame.jpg'); /* adjust path as needed */
+
+      background-size: 100%;
+      background-repeat: no-repeat;
+      background-position: top center;
+      pointer-events: none;
+    }
+
+#popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000; /* Solid black */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-family: 'Orbitron', sans-serif; /* Cool futuristic font */
+  letter-spacing: 2px;
+  z-index: 9999;
+  transition: opacity 1s ease;
+  text-transform: uppercase;
+}
+
+#popup.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+</style>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== POPUP HTML ===== -->
+<div id="popup">
+  <span id="popup-text">RELATOR</span>
+</div>
+
+
+  <!-- Existing Content -->
+  <div class="banner">
+    <div class="slider" style="--quantity: 10">
+      <div class="item" style="--position: 1"><img src="lol.jpg" alt=""></div>
+      <div class="item" style="--position: 2"><img src="medium-shot-woman-posing-with-double-exposure.jpg" alt=""></div>
+      <div class="item" style="--position: 3"><img src="full-shot-woman-posing-beach.jpg" alt=""></div>
+      <div class="item" style="--position: 4"><img src="beautiful-girl-hen-party.jpg" alt=""></div>
+      <div class="item" style="--position: 5"><img src="vertical-shot-young-caucasian-female-with-unbuttoned-shirt-posing-forest.jpg" alt=""></div>
+      <div class="item" style="--position: 6"><img src="beautiful-girl-fashion-styles-dresses.jpg" alt=""></div>
+      <div class="item" style="--position: 7"><img src="high-angle-beautiful-boy-nature.jpg" alt=""></div>
+      <div class="item" style="--position: 8"><img src="portrait-teenage-boy-with-arms-crossed-standing-field-sunny-day.jpg" alt=""></div>
+      <div class="item" style="--position: 9"><img src="portrait-handsome-teenager-posing.jpg" alt=""></div>
+      <div class="item" style="--position: 10"><img src="white-basic-t-shirt-boys-rsquo-teen-rsquo-s-apparel-studio-shoot.jpg" alt=""></div>
+    </div>
+    <div class="content">
+      <h1>RELATOR</h1>
+      <div class="author">
+        <h2>Make Friends Online</h2>
+        <p><b>chat, fun and hangout!</b></p>
+        <p>Don't worry! We Got You!</p>
+      </div>
+      <div class="model"></div>
+    </div>
+  </div>
+
+  <!-- ===== POPUP SCRIPT ===== -->
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("popup").classList.add("hidden");
+      }, 5000); 
+    });
+  </script>
+
+
+
+
+<script>
+  const words = [
+    "RELATOR", "AMIGO", "AMI", "FREUND", "友達", "친구", "ДРУГ", "دوست", "AMICO",
+  ];
+
+  const popup = document.getElementById("popup");
+  const popupText = document.getElementById("popup-text");
+
+  let index = 0;
+
+  const changeText = () => {
+    popupText.style.opacity = 0;
+    setTimeout(() => {
+      popupText.textContent = words[index];
+      popupText.style.opacity = 1;
+      index = (index + 1) % words.length;
+    }, 30); // fade-out duration
+  };
+
+  const interval = setInterval(changeText, 100);
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      clearInterval(interval);
+      popup.classList.add("hidden");
+    }, 4000); 
+  });
+</script>
+
+</body>
+</html>
