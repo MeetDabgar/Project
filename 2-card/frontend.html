@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bumble Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        body { background-color: #f8f8f8; height: 100vh; overflow: hidden; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; max-width: 500px; margin: 0 auto; background-color: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        
+        /* Header */
+        .app-header { padding: 15px; text-align: center; background-color: white; border-bottom: 1px solid #eee; }
+        .header-icons { display: flex; justify-content: space-between; padding: 0 15px; }
+        .profile-icon, .chat-icon { font-size: 24px; color: #767676; cursor: pointer; }
+        .logo { height: 24px; }
+        .mode-selector { display: flex; justify-content: center; margin-top: 15px; }
+        .mode-btn { background: none; border: none; padding: 5px 15px; font-size: 14px; font-weight: 600; color: #767676; cursor: pointer; position: relative; }
+        .mode-btn.active { color: #000; }
+        .mode-btn.active::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 30px; height: 3px; background-color: #ffcd1f; border-radius: 3px; }
+        
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .profile-card { width: 90%; max-width: 350px; height: 70vh; background-color: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); position: absolute; overflow: hidden; transition: transform 0.3s ease; }
+        .profile-image { width: 100%; height: 100%; object-fit: cover; }
+        .profile-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0, 0, 0, 0.7)); color: white; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; }
+        .profile-name-age { font-size: 28px; font-weight: 600; margin-bottom: 5px; }
+        .profile-bio { font-size: 16px; margin-bottom: 10px; }
+        .profile-distance { font-size: 14px; display: flex; align-items: center; }
+        .profile-distance i { margin-right: 5px; }
+        .no-more-profiles { text-align: center; padding: 20px; color: #767676; display: none; }
+        
+        /* Action Buttons */
+        .action-buttons { display: flex; justify-content: center; padding: 20px; gap: 15px; }
+        .action-btn { width: 50px; height: 50px; border-radius: 50%; border: none; background-color: white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+        .dislike-btn { color: #fd5068; font-size: 24px; }
+        .like-btn { color: #1be4a1; font-size: 24px; }
+        .super-like-btn { color: #09b3e6; font-size: 20px; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 15px; text-align: center; width: 80%; max-width: 350px; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; }
+        .match-profile img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 5px solid #ffcd1f; }
+        .send-message-btn, .keep-swiping-btn { padding: 12px 20px; border-radius: 25px; border: none; font-weight: 600; cursor: pointer; margin: 5px; width: 100%; }
+        .send-message-btn { background-color: #ffcd1f; color: black; }
+        .keep-swiping-btn { background-color: white; color: black; border: 1px solid #ddd; }
+        
+        /* Chat & Profile Interfaces */
+        .chat-interface, .profile-interface { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: white; z-index: 20; display: none; flex-direction: column; }
+        .chat-header, .profile-header { padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .back-to-swiping, .back-to-swiping-profile { background: none; border: none; font-size: 20px; margin-right: 15px; cursor: pointer; }
+        .matches-list { flex: 1; overflow-y: auto; }
+        .match-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .match-item img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+        
+        /* Profile Edit Section */
+        .profile-edit { padding: 20px; flex: 1; overflow-y: auto; }
+        .profile-image-upload { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        #profile-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .save-btn { background-color: #ffcd1f; color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
+        
+        /* Animations */
+        .swipe-right { transform: translateX(200%) rotate(30deg); opacity: 0; transition: all 0.5s ease; }
+        .swipe-left { transform: translateX(-200%) rotate(-30deg); opacity: 0; transition: all 0.5s ease; }
+        .super-like-effect { animation: superLikePulse 1s; }
+        @keyframes superLikePulse {
+            0% { box-shadow: 0 0 0 0 rgba(9, 179, 230, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(9, 179, 230, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(9, 179, 230, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-icons">
+                <i class="fas fa-user-circle profile-icon" id="profile-icon"></i>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/06/Bumble_logo.svg" alt="Bumble Logo" class="logo">
+                <i class="fas fa-comment-dots chat-icon" id="chat-icon"></i>
+            </div>
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="date">Date</button>
+                <button class="mode-btn" data-mode="bff">BFF</button>
+                <button class="mode-btn" data-mode="bizz">Rizz</button>
+            </div>
+        </header>
+
+        <main class="main-content" id="swipe-container">
+            <div class="no-more-profiles">
+                <p>No more profiles in your area</p>
+                <p>Try changing your search settings</p>
+            </div>
+        </main>
+
+        <div class="action-buttons">
+            <button class="action-btn dislike-btn" id="dislike-btn"><i class="fas fa-times"></i></button>
+            <button class="action-btn super-like-btn" id="super-like-btn"><i class="fas fa-star"></i></button>
+            <button class="action-btn like-btn" id="like-btn"><i class="fas fa-heart"></i></button>
+        </div>
+
+        <div class="modal" id="match-modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>It's a Match!</h2>
+                <div class="match-profile">
+                    <img src="" alt="Matched Profile" id="matched-profile-img">
+                    <h3 id="matched-profile-name"></h3>
+                </div>
+                <button class="send-message-btn">Send Message</button>
+                <button class="keep-swiping-btn">Keep Swiping</button>
+            </div>
+        </div>
+
+        <div class="chat-interface" id="chat-interface">
+            <div class="chat-header">
+                <button class="back-to-swiping"><i class="fas fa-arrow-left"></i></button>
+                <h3>Your Matches</h3>
+            </div>
+            <div class="matches-list"></div>
+        </div>
+
+        <div class="profile-interface" id="profile-interface">
+            <div class="profile-header">
+                <button class="back-to-swiping-profile"><i class="fas fa-arrow-left"></i></button>
+                <h3>My Profile</h3>
+            </div>
+            <div class="profile-edit">
+                <div class="profile-image-upload">
+                    <img id="profile-preview" src="https://i.imgur.com/JR6h0Wq.jpg" alt="Profile Preview">
+                    <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                    <button onclick="document.getElementById('profile-upload').click()" class="action-btn" style="width: auto; padding: 8px 15px;">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-name">Name</label>
+                    <input type="text" id="user-name" value="You">
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-age">Age</label>
+                    <input type="number" id="user-age" value="20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-bio">Bio</label>
+                    <textarea id="user-bio" rows="3">Tell people about yourself</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-gender">Gender</label>
+                    <select id="user-gender">
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Non-binary</option>
+                        <option>Prefer not to say</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-location">Location</label>
+                    <input type="text" id="user-location" value="New Delhi, India">
+                </div>
+                
+                <button class="save-btn" id="save-btn">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile data with AI-generated Indian model images
+            const profiles = [
+                { 
+                    id: 1, 
+                    name: "Priya", 
+                    age: 26, 
+                    bio: "Fashion designer and dancer", 
+                    distance: "2 km away", 
+                    images: ["https://images.unsplash.com/photo-1607344557218-cbff0292b830?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                },
+                { 
+                    id: 2, 
+                    name: "Aarav", 
+                    age: 28, 
+                    bio: "Software engineer and cricket lover", 
+                    distance: "3 km away", 
+                    images: ["https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                },
+                { 
+                    id: 3, 
+                    name: "Neha", 
+                    age: 24, 
+                    bio: "Medical student and painter", 
+                    distance: "1 km away", 
+                    images: ["https://images.unsplash.com/photo-1618559850638-2aed8a8e8cdc?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                },
+                { 
+                    id: 4, 
+                    name: "Shruti", 
+                    age: 30, 
+                    bio: "Chef and food blogger", 
+                    distance: "5 km away", 
+                    images: ["https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                },
+                { 
+                    id: 5, 
+                    name: "Ananya", 
+                    age: 27, 
+                    bio: "Yoga instructor and traveler", 
+                    distance: "4 km away", 
+                    images: ["https://images.unsplash.com/photo-1586866628184-e07bda20abaa?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                },
+                { 
+                    id: 6, 
+                    name: "Amit", 
+                    age: 27, 
+                    bio: "Yoga instructor and traveler", 
+                    distance: "4 km away", 
+                    images: ["https://images.unsplash.com/photo-1637589274892-9bc2d5200eab?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"] 
+                }
+            ];
+            
+            // DOM elements
+            const swipeContainer = document.getElementById('swipe-container');
+            const dislikeBtn = document.getElementById('dislike-btn');
+            const likeBtn = document.getElementById('like-btn');
+            const superLikeBtn = document.getElementById('super-like-btn');
+            const matchModal = document.getElementById('match-modal');
+            const matchedProfileImg = document.getElementById('matched-profile-img');
+            const matchedProfileName = document.getElementById('matched-profile-name');
+            const chatIcon = document.getElementById('chat-icon');
+            const profileIcon = document.getElementById('profile-icon');
+            const chatInterface = document.getElementById('chat-interface');
+            const profileInterface = document.getElementById('profile-interface');
+            const backToSwiping = document.querySelector('.back-to-swiping');
+            const backToSwipingProfile = document.querySelector('.back-to-swiping-profile');
+            const profileUpload = document.getElementById('profile-upload');
+            const profilePreview = document.getElementById('profile-preview');
+            const saveBtn = document.getElementById('save-btn');
+            
+            // State
+            let currentProfileIndex = 0;
+            let matches = [];
+            let currentCard = null;
+            
+            // Initialize
+            function init() {
+                renderProfileCard();
+                setupEventListeners();
+            }
+            
+            // Render profile card
+            function renderProfileCard() {
+                if (currentProfileIndex >= profiles.length) {
+                    document.querySelector('.no-more-profiles').style.display = 'block';
+                    return;
+                }
+                
+                const profile = profiles[currentProfileIndex];
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                card.innerHTML = `
+                    <img src="${profile.images[0]}" class="profile-image">
+                    <div class="profile-info">
+                        <div class="profile-name-age">${profile.name}, ${profile.age}</div>
+                        <div class="profile-bio">${profile.bio}</div>
+                        <div class="profile-distance"><i class="fas fa-map-marker-alt"></i> ${profile.distance}</div>
+                    </div>
+                `;
+                swipeContainer.appendChild(card);
+                currentCard = card;
+            }
+            
+            // Like profile
+            function likeProfile() {
+                if (!currentCard) return;
+                currentCard.classList.add('swipe-right');
+                if (Math.random() < 0.3) {
+                    matches.push(profiles[currentProfileIndex]);
+                    showMatchModal(profiles[currentProfileIndex]);
+                }
+                moveToNextProfile();
+            }
+            
+            // Dislike profile
+            function dislikeProfile() {
+                if (!currentCard) return;
+                currentCard.classList.add('swipe-left');
+                moveToNextProfile();
+            }
+            
+            // Super like profile
+            function superLikeProfile() {
+                if (!currentCard) return;
+                currentCard.classList.add('super-like-effect');
+                if (Math.random() < 0.6) {
+                    matches.push(profiles[currentProfileIndex]);
+                    showMatchModal(profiles[currentProfileIndex]);
+                }
+                setTimeout(() => {
+                    currentCard.classList.add('swipe-right');
+                    moveToNextProfile();
+                }, 1000);
+            }
+            
+            // Move to next profile
+            function moveToNextProfile() {
+                setTimeout(() => {
+                    if (currentCard) {
+                        currentCard.remove();
+                        currentCard = null;
+                    }
+                    currentProfileIndex++;
+                    renderProfileCard();
+                }, 500);
+            }
+            
+            // Show match modal
+            function showMatchModal(profile) {
+                matchedProfileImg.src = profile.images[0];
+                matchedProfileName.textContent = `${profile.name}, ${profile.age}`;
+                matchModal.style.display = 'flex';
+            }
+            
+            // Handle profile image upload
+            function handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // Save preferences
+            function savePreferences() {
+                const name = document.getElementById('user-name').value;
+                const age = document.getElementById('user-age').value;
+                const bio = document.getElementById('user-bio').value;
+                const gender = document.getElementById('user-gender').value;
+                const location = document.getElementById('user-location').value;
+                
+                // Here you would typically send this data to a server
+                console.log('Saving preferences:', { name, age, bio, gender, location });
+                
+                // Show a confirmation (you could replace this with a proper notification)
+                alert('Preferences saved successfully!');
+            }
+            
+            // Event listeners
+            function setupEventListeners() {
+                dislikeBtn.addEventListener('click', dislikeProfile);
+                likeBtn.addEventListener('click', likeProfile);
+                superLikeBtn.addEventListener('click', superLikeProfile);
+                
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    matchModal.style.display = 'none';
+                });
+                
+                document.querySelector('.keep-swiping-btn').addEventListener('click', () => {
+                    matchModal.style.display = 'none';
+                });
+                
+                chatIcon.addEventListener('click', () => {
+                    const matchesList = document.querySelector('.matches-list');
+                    matchesList.innerHTML = matches.length ? 
+                        matches.map(m => `
+                            <div class="match-item">
+                                <img src="${m.images[0]}">
+                                <div><h4>${m.name}, ${m.age}</h4><p>Matched today</p></div>
+                            </div>
+                        `).join('') : '<p class="no-matches">No matches yet</p>';
+                    chatInterface.style.display = 'flex';
+                });
+                
+                profileIcon.addEventListener('click', () => {
+                    profileInterface.style.display = 'flex';
+                });
+                
+                backToSwiping.addEventListener('click', () => {
+                    chatInterface.style.display = 'none';
+                });
+                
+                backToSwipingProfile.addEventListener('click', () => {
+                    profileInterface.style.display = 'none';
+                });
+                
+                profileUpload.addEventListener('change', handleImageUpload);
+                
+                saveBtn.addEventListener('click', savePreferences);
+            }
+            
+            init();
+        });
+    </script>
+</body>
+</html>
