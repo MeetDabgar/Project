@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with Alex</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      height: 80vh;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 15px 20px;
+      background-color: #8b5a2b;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #f3e5d7;
+      margin-right: 10px;
+      overflow: hidden;
+    }
+
+    .profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .header-info {
+      flex: 1;
+    }
+
+    .header-info h2 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .header-info p {
+      font-size: 12px;
+      margin: 2px 0 0;
+      opacity: 0.8;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      max-width: 80%;
+      padding: 10px 15px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+      font-size: 15px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+      background-color: #8b5a2b;
+      color: white;
+      margin-left: auto;
+      border-radius: 15px 15px 0 15px;
+    }
+
+    .other-message {
+      background-color: white;
+      color: #333;
+      margin-right: auto;
+      border-radius: 15px 15px 15px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .typing-indicator {
+      display: none;
+      padding: 10px 15px;
+      background-color: white;
+      border-radius: 15px;
+      margin-bottom: 12px;
+      width: fit-content;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .typing-indicator span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #8b5a2b;
+      border-radius: 50%;
+      margin-right: 3px;
+      animation: typingAnimation 1.4s infinite both;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-3px); }
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: #999;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .chat-input-container {
+      display: flex;
+      padding: 12px;
+      background-color: white;
+      border-top: 1px solid #eee;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      outline: none;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    #message-input:focus {
+      border-color: #8b5a2b;
+    }
+
+    #send-button {
+      background-color: #8b5a2b;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      margin-left: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    #send-button:hover {
+      background-color: #6d4624;
+    }
+
+    .seen-indicator {
+      font-size: 11px;
+      color: #8b5a2b;
+      text-align: right;
+      margin-top: 5px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="profile-pic">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Alex">
+      </div>
+      <div class="header-info">
+        <h2>Alex</h2>
+        <p>Online</p>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <!-- Messages will appear here -->
+    </div>
+    <div class="typing-indicator" id="typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" id="message-input" placeholder="Type a message...">
+      <button id="send-button">→</button>
+    </div>
+  </div>
+
+  <script>
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const chatMessages = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typing-indicator');
+    
+    // Human-like response patterns
+    const alexResponses = {
+      greetings: [
+        "Hey there! 😊", 
+        "Hi! How's your day going?", 
+        "Hello! What's up?",
+        "Hey! Nice to hear from you."
+      ],
+      questions: [
+        "What about you?",
+        "How do you feel about that?",
+        "What's your take on this?",
+        "I'd love to hear your thoughts."
+      ],
+      reactions: [
+        "That's really interesting!",
+        "I never thought about it that way.",
+        "Wow, that's cool!",
+        "Haha, that's funny!",
+        "Oh really? Tell me more."
+      ],
+      continuations: [
+        "And then what happened?",
+        "Go on...",
+        "Keep going, I'm listening",
+        "What else?"
+      ],
+      affirmations: [
+        "I totally get that.",
+        "That makes sense.",
+        "I feel the same way sometimes.",
+        "I understand what you mean."
+      ],
+      randomThoughts: [
+        "By the way, have you seen that new movie?",
+        "This reminds me of something...",
+        "You know what's crazy?",
+        "I was just thinking about this earlier."
+      ]
+    };
+
+    // More natural response timing
+    function getRandomDelay() {
+      return 1000 + Math.random() * 3000; // 1-4 seconds
+    }
+
+    function getCurrentTime() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addMessage(text, isUser) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(isUser ? 'user-message' : 'other-message');
+      messageDiv.textContent = text;
+      
+      const timeSpan = document.createElement('div');
+      timeSpan.classList.add('timestamp');
+      timeSpan.textContent = getCurrentTime();
+      messageDiv.appendChild(timeSpan);
+      
+      if (isUser) {
+        const seenSpan = document.createElement('div');
+        seenSpan.classList.add('seen-indicator');
+        seenSpan.textContent = 'Seen';
+        messageDiv.appendChild(seenSpan);
+      }
+      
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      typingIndicator.style.display = 'block';
+      chatMessages.appendChild(typingIndicator);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      typingIndicator.style.display = 'none';
+    }
+
+    function getRandomResponse(category) {
+      const options = alexResponses[category];
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    function processMessage(message) {
+      const lowerMsg = message.toLowerCase();
+      
+      showTypingIndicator();
+      
+      setTimeout(() => {
+        hideTypingIndicator();
+        
+        if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+          addMessage(getRandomResponse('greetings'), false);
+        } 
+        else if (lowerMsg.includes('how are you')) {
+          addMessage("I'm good, thanks for asking! " + getRandomResponse('questions'), false);
+        }
+        else if (lowerMsg.includes('?')) {
+          // If user asked a question
+          if (lowerMsg.includes('name')) {
+            addMessage("I'm Alex! " + getRandomResponse('questions'), false);
+          }
+          else if (lowerMsg.includes('age') || lowerMsg.includes('old')) {
+            addMessage("I'm 28. " + getRandomResponse('randomThoughts'), false);
+          }
+          else {
+            addMessage(getRandomResponse('reactions') + " " + getRandomResponse('questions'), false);
+          }
+        }
+        else if (lowerMsg.includes('bye') || lowerMsg.includes('goodbye')) {
+          addMessage(getRandomResponse('greetings') + " Talk to you later!", false);
+        }
+        else {
+          // Randomly choose between different response types
+          const responseTypes = ['reactions', 'affirmations', 'continuations', 'randomThoughts'];
+          const randomType = responseTypes[Math.floor(Math.random() * responseTypes.length)];
+          addMessage(getRandomResponse(randomType), false);
+          
+          // Sometimes add a follow-up question
+          if (Math.random() > 0.5) {
+            setTimeout(() => {
+              showTypingIndicator();
+              setTimeout(() => {
+                hideTypingIndicator();
+                addMessage(getRandomResponse('questions'), false);
+              }, getRandomDelay());
+            }, getRandomDelay());
+          }
+        }
+      }, getRandomDelay());
+    }
+
+    // Initial message after a short delay
+    setTimeout(() => {
+      showTypingIndicator();
+      setTimeout(() => {
+        hideTypingIndicator();
+        addMessage("Hey there! 😊 How's your day going?", false);
+      }, 2000);
+    }, 1500);
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (message) {
+        addMessage(message, true);
+        processMessage(message);
+        messageInput.value = '';
+      }
+    }
+  </script>
+</body>
+</html>
